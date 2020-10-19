@@ -1,9 +1,12 @@
 import React from 'react';
+import { BrowserRouter, Route } from "react-router-dom";
 
 import Header from "./components/header/Header";
-import Main from "./components/main/Main";
 import Features from "./components/features/Features";
 import Footer from "./components/footer/Footer";
+import Home from "./components/home/Home";
+import Calendar from "./components/calendar/Calendar";
+import Details from "./components/details/Details";
 
 import FetchData from "./service/fetchData";
 
@@ -17,12 +20,13 @@ class App extends React.Component {
         rocket: 'Falcon 1',
         rocketFeatures: null,
         rocketName: [],
-        companyContacts: null
+        companyInfo: null,
+        launchesId: null
     }
 
     componentDidMount() {
         this.updateRocket()
-        this.updateCompanyContacts()
+        this.updateCompanyInfo()
     }
 
     updateRocket() {
@@ -35,28 +39,46 @@ class App extends React.Component {
             .then(rocketFeatures => this.setState({ rocketFeatures }))
     }
 
-    updateCompanyContacts() {
+    updateCompanyInfo() {
         this.fetchData.getCompany()
             .then(data => {
-                this.setState({ companyContacts: data.links})
+                this.setState({ companyInfo: data })
             })
     }
 
     changeRocket = rocket => {
-        this.setState({
-            rocket
-        }, this.updateRocket)
+        this.setState({ rocket }, this.updateRocket)
+    }
+
+    updateLaunchesInfo() {
+        this.fetchData.getLaunches()
+            .then(data => {
+                this.setState({ launchesId: data.map(item => item.id) })
+            })
     }
 
     render() {
-        console.log(this.state.companyContacts)
         return (
-            <>
+            <BrowserRouter>
                 <Header rocketName={this.state.rocketName} changeRocket={this.changeRocket}/>
-                <Main rocket={this.state.rocket}/>
-                {this.state.rocketFeatures && <Features rocketFeatures={this.state.rocketFeatures} />}
-                {this.state.companyContacts && <Footer companyContacts={this.state.companyContacts}/>}
-            </>
+
+                <Route exact
+                    path={'/'}
+                    render={() => this.state.companyInfo &&
+                        <Home company={this.state.companyInfo} />}
+                />
+
+                <Route
+                    path={'/rocket'}
+                    render={({ match }) => this.state.rocketFeatures &&
+                        <Features rocketFeatures={this.state.rocketFeatures} match={match} />}
+                />
+
+                <Route path={'/calendar'} component={Calendar} />
+                <Route path={'/details/:id'} component={Details} />
+
+                {this.state.companyInfo && <Footer companyInfo={this.state.companyInfo}/>}
+            </BrowserRouter>
         )
     }
 }

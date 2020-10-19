@@ -5,7 +5,7 @@ import './footer.css'
 
 const Footer = props => {
 
-    const {elon_twitter, twitter, flickr, website} = props.companyContacts
+    const {links: {elon_twitter, twitter, flickr, website}, summary} = props.companyInfo
 
     return(
         <footer className="footer">
@@ -25,6 +25,9 @@ const Footer = props => {
                                             className="item-link">Website</a></li>
                 </ul>
             </nav>
+            <p className="footer-text">
+                {summary}
+            </p>
             <p className="footer-text">
                 For additional questions, contact
                 <a className="footer-link" href="mailto:rideshare@spacex.com"
